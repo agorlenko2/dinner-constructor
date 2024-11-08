@@ -1,5 +1,6 @@
 package ru.practicum.dinner;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
@@ -13,17 +14,20 @@ public class Main {
 
         while (true) {
             printMenu();
-            String command = scanner.nextLine();
+            String command = scanner.nextLine().trim();
 
             switch (command) {
                 case "1":
-                    addNewDish();
+                    addNewDish(dc);
                     break;
                 case "2":
-                    generateDishCombo();
+                    generateDishCombo(dc);
                     break;
                 case "3":
                     return;
+                default:
+                    System.out.println("Команда не распознана!");
+                    break;
             }
         }
     }
@@ -35,31 +39,65 @@ public class Main {
         System.out.println("3 - Выход");
     }
 
-    private static void addNewDish() {
+    private static void addNewDish(DinnerConstructor dinnerConstructor) {
         System.out.println("Введите тип блюда:");
-        String dishType = scanner.nextLine();
-        System.out.println("Введите название блюда:");
-        String dishName = scanner.nextLine();
+        String dishType = scanner.nextLine().trim();
+        if (dishType.isEmpty()) {
+            System.out.println("Введен пустой тип блюда!");
+            return;
+        }
 
-        // добавьте новое блюдо
+        System.out.println("Введите название блюда:");
+        String dishName = scanner.nextLine().trim();
+        if (dishName.isEmpty()) {
+            System.out.println("Введено пустое название блюда!");
+            return;
+        }
+
+        dinnerConstructor.addNewDish(dishType, dishName);
     }
 
-    private static void generateDishCombo() {
+    private static void generateDishCombo(DinnerConstructor dinnerConstructor) {
         System.out.println("Начинаем конструировать обед...");
 
         System.out.println("Введите количество наборов, которые нужно сгенерировать:");
-        int numberOfCombos = scanner.nextInt();
-        scanner.nextLine();
-
-        System.out.println("Вводите типы блюда, разделяя символом переноса строки (enter). Для завершения ввода введите пустую строку");
-        String nextItem = scanner.nextLine();
-
-        //реализуйте ввод типов блюд
-        while (!nextItem.isEmpty()) {
-
+        int numberOfCombos = -1;
+        if (scanner.hasNextInt()) {
+            numberOfCombos = scanner.nextInt();
+            scanner.nextLine();
+        } else {
+            System.out.println("Количество наборов должно быть целым положительным числом.");
+            scanner.nextLine();
+            return;
         }
 
-        // сгенерируйте комбинации блюд и выведите на экран
+        if (numberOfCombos <= 0) {
+            System.out.println("Введено некорректное число наборов. Требуется ввести число больше 0");
+            return;
+        }
+
+        System.out.println("Вводите типы блюда, разделяя символом переноса строки (enter). Для завершения ввода введите пустую строку");
+        ArrayList<String> dishTypes = new ArrayList<>();
+        while (true) {
+            String nextItem = scanner.nextLine().trim();
+            if (nextItem.isEmpty()) {
+                break;
+            }
+            if (!dinnerConstructor.checkType(nextItem)) {
+                System.out.println("Такого типа блюд нет в меню! Введите корректный тип.");
+                continue;
+            }
+            dishTypes.add(nextItem);
+        }
+
+        if (dishTypes.size() == 0) {
+            System.out.println("Не введено ни одного типа блюда!");
+            return;
+        }
+
+        for (int i = 0; i < numberOfCombos; i++) {
+            System.out.println(dc.generateDishCombo(dishTypes));
+        }
 
     }
 }
